@@ -16,7 +16,6 @@ const LoginPage = () => `
             <path d='M12 32V36H36V32H12Z' fill='white' />
           </svg>
         </div>
-        <h1 class='login-title'>LIS</h1>
       </div>
     </div>
 
