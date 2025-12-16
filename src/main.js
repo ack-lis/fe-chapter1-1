@@ -105,6 +105,12 @@ const router = {
       }
 
       const app = document.getElementById('app');
+
+      if (!app) {
+        console.warn('#app 없음');
+        return;
+      }
+
       app.innerHTML = route.page();
 
       setActiveNav();
@@ -118,7 +124,6 @@ const router = {
 };
 
 function setActiveNav() {
-  // alert('test');
   const currentPath = window.location.pathname;
 
   document.querySelectorAll('.nav-item-v2').forEach(item => {
@@ -128,12 +133,12 @@ function setActiveNav() {
   });
 }
 
-const Main = () => `
-  <div  class='page dashboard-page-v2'>
-    <div id="root" class='dashboard-container-v2'>
-    </>
-  </div>
-`;
+// const Main = () => `
+//   <div  class='page dashboard-page-v2'>
+//     <div id="root" class='dashboard-container-v2'>
+//     </>
+//   </div>
+// `;
 
 window.router = router;
 globalThis.router = router;
@@ -177,6 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // </div>
 // `;
 
-document.body.innerHTML = `
-  ${Main()}
-`;
+// document.body.innerHTML = `
+//   ${Main()}
+// `;
