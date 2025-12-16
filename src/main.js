@@ -5,6 +5,8 @@ const LoginPage = () => `
       <div class='login-header-content'>
         <div class='login-icon'>
           <svg
+            testtest
+
             width='48'
             height='48'
             viewBox='0 0 48 48'
