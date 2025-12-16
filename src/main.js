@@ -53,16 +53,15 @@ const LoginPage = () => `
 `;
 
 const DashboardPage = () => `
-<div class='page dashboard-page-v2'>
+<div class='page dashboard-page-v2' >
   <div class='dashboard-container-v2'>
     <div class='sidebar-v2'>
       <div class='sidebar-header-v2'>
         <h2 class='sidebar-title-v2'>MediGuard LIS</h2>
         <p class='sidebar-subtitle-v2'>차세대 환자 안전 플랫폼</p>
       </div>
-
-      <nav class='sidebar-nav-v2'>
-        <button class='nav-item-v2 active'>
+      <nav class='sidebar-nav-v2' id= 'navi'>
+        <button class='nav-item-v2 active' id='btnDash' >
           <svg
             width='20'
             height='20'
@@ -80,7 +79,7 @@ const DashboardPage = () => `
           </svg>
           <span>대시보드</span>
         </button>
-        <button class='nav-item-v2'>
+        <button class='nav-item-v2' id='btnRst'>
           <svg
             width='20'
             height='20'
@@ -99,7 +98,7 @@ const DashboardPage = () => `
           </svg>
           <span>검사 결과 보기</span>
         </button>
-        <button class='nav-item-v2'>
+        <button class='nav-item-v2' id="btnprofil" >
           <svg
             width='20'
             height='20'
@@ -140,7 +139,6 @@ const DashboardPage = () => `
       <div class='content-header-v2'>
         <button class='tab-button-v2 active'>대시보드</button>
       </div>
-
       <div class='content-body-v2'>
         <div class='alert-section-v2'>
           <div class='alert-header-v2'>
@@ -680,8 +678,8 @@ const TestResultViewPage = () => `
         <p class="sidebar-subtitle-v2">차세대 환자 안전 플랫폼</p>
       </div>
 
-      <nav class="sidebar-nav-v2">
-        <button class="nav-item-v2">
+      <nav class="sidebar-nav-v2" >
+        <button class="nav-item-v2" id="btnDash" >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
@@ -690,7 +688,7 @@ const TestResultViewPage = () => `
           </svg>
           <span>대시보드</span>
         </button>
-        <button class="nav-item-v2 active">
+        <button class="nav-item-v2 active" id= 'btnRst'>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0 -2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2V8z"></path>
             <path d="M14 2v6h6"></path>
@@ -700,7 +698,7 @@ const TestResultViewPage = () => `
           </svg>
           <span>검사 결과 보기</span>
         </button>
-        <button class="nav-item-v2">
+        <button class="nav-item-v2" id="btnprofil" >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
           </svg>
@@ -1685,6 +1683,7 @@ const TestResultViewPage = () => `
   </div>
 </div>
 `;
+
 const ProfilePage = () => `
 <div class='page profile-page-v2'>
   <div class='dashboard-container-v2'>
@@ -1695,7 +1694,7 @@ const ProfilePage = () => `
       </div>
 
       <nav class='sidebar-nav-v2'>
-        <button class='nav-item-v2'>
+        <button class='nav-item-v2' id='btnDash'>
           <svg
             width='20'
             height='20'
@@ -1713,7 +1712,7 @@ const ProfilePage = () => `
           </svg>
           <span>대시보드</span>
         </button>
-        <button class='nav-item-v2'>
+        <button class='nav-item-v2' id= 'btnRst'>
           <svg
             width='20'
             height='20'
@@ -1732,7 +1731,7 @@ const ProfilePage = () => `
           </svg>
           <span>검사 결과 보기</span>
         </button>
-        <button class='nav-item-v2'>
+        <button class='nav-item-v2' id="btnprofil" >
           <svg
             width='20'
             height='20'
@@ -1958,9 +1957,109 @@ const NotFoundPage = () => `
 // 모든 페이지를 합쳐서 표시
 document.body.innerHTML = `
 
-  ${LoginPage()}
-  ${DashboardPage()}
-  ${TestResultViewPage()}
-  ${NotFoundPage()}
-  ${ProfilePage()}
+${LoginPage()}
+${DashboardPage()}
+${TestResultViewPage()}
+${NotFoundPage()}
+${ProfilePage()}
+
 `;
+
+const _appDiv = document.getElementById('app');
+const btnRst = document.getElementById('btnRst');
+const btnDash = document.getElementById('btnDash');
+const btnprofil = document.getElementById('btnprofil');
+
+const Rst_PATH = '/testResultView';
+const Dash_PATH = '/Dashboard';
+const Profil_PATH = '/Profil';
+
+function addEventListenerAll() {
+  const btnRst = document.getElementById('btnRst');
+  const btnDash = document.getElementById('btnDash');
+  const btnprofil = document.getElementById('btnprofil');
+
+  btnRst.addEventListener('click', function () {
+    window.history.pushState({ path: Rst_PATH }, '', '');
+
+    renderPageContent(Rst_PATH);
+  });
+
+  btnDash.addEventListener('click', function () {
+    window.history.pushState({ path: Dash_PATH }, '', '');
+
+    renderPageContent(Dash_PATH);
+  });
+
+  btnprofil.addEventListener('click', function () {
+    window.history.pushState({ path: Profil_PATH }, '', '');
+
+    renderPageContent(Profil_PATH);
+  });
+}
+
+// 2. 경로에 따라 화면 내용을 렌더링하는 함수 (핵심)
+function renderPageContent(path) {
+  document.body.innerHTML = ''; // 기존 내용을 초기화
+  switch (path) {
+  case '/testResultView':
+    document.body.innerHTML = `
+       ${TestResultViewPage()}
+    `;
+    addEventListenerAll();
+    break;
+
+  case '/Dashboard':
+    document.body.innerHTML = `
+      ${DashboardPage()}
+    `;
+    addEventListenerAll();
+    break;
+
+  case '/Profil':
+    document.body.innerHTML = `
+      ${ProfilePage()}
+    `;
+    addEventListenerAll();
+    break;
+  }
+}
+
+// 3. 버튼 클릭 이벤트 리스너 추가
+btnRst.addEventListener('click', function () {
+  // 3-1. History API를 사용하여 주소창 URL을 변경합니다. (페이지 새로고침 없음)
+  window.history.pushState(
+    { path: Rst_PATH }, // state 객체 (경로 정보 저장)
+    '', // title (비워둠)
+    '' // 변경할 URL
+  );
+  // 3-2. URL이 변경되었으므로, 변경된 경로에 맞춰 화면을 갱신합니다.
+  renderPageContent(Rst_PATH);
+});
+btnDash.addEventListener('click', function () {
+  window.history.pushState({ path: Dash_PATH }, '', '');
+
+  renderPageContent(Dash_PATH);
+});
+btnprofil.addEventListener('click', function () {
+  window.history.pushState({ path: Profil_PATH }, '', '');
+
+  renderPageContent(Profil_PATH);
+});
+
+// 4. '뒤로가기' 또는 '앞으로가기' 이벤트 처리 (필수)
+// 사용자가 브라우저의 이동 버튼을 사용하면 'popstate' 이벤트가 발생합니다.
+window.addEventListener('popstate', function () {
+  // 현재 URL의 경로를 가져와서 렌더링 함수를 다시 호출합니다.
+  const currentPath = window.location.pathname;
+  renderPageContent(currentPath);
+});
+
+/*아래의 코드는 맨처음 나오는 버튼에만 적용이 됨.로그인 버튼에서 event  발생*/
+/*const btn = document.querySelector("button");
+function atest(event){
+  alert("A");
+}
+btn.addEventListener("click",atest);*/
+
+/*태그 nav 안에 있는 Button들의 모든 click event 제어/*/
