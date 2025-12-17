@@ -71,6 +71,7 @@ export default function ProfilePage() {
                 <input
                   type='text'
                   class='search-input-v2'
+                  id='profile_main_name'
                   value='김의사'
                   placeholder='이름을 입력하세요'
                 />
@@ -84,6 +85,7 @@ export default function ProfilePage() {
                 <input
                   type='text'
                   class='search-input-v2'
+                  id='profile_main_rule'
                   value='의사'
                   placeholder='직책을 입력하세요'
                 />
@@ -119,7 +121,7 @@ export default function ProfilePage() {
 
             <div class='profile-actions-v2'>
               <button class='btn-cancel-v2'>취소</button>
-              <button class='btn-save-v2'>
+              <button class='btn-save-v2' id='profile_main_save'>
                 <svg width='20' height='20' viewBox='0 0 20 20' fill='none'>
                   <path
                     d='M16.67 2.5H3.33C2.6 2.5 2 3.1 2 3.83V16.17C2 16.9 2.6 17.5 3.33 17.5H16.67C17.4 17.5 18 16.9 18 16.17V3.83C18 3.1 17.4 2.5 16.67 2.5Z'

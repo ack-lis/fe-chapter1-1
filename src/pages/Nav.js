@@ -1,6 +1,6 @@
 export default function Nav() {
   return `
-    <div class='sidebar-v2'>
+    <div class='sidebar-v2' id="Nav" >
       <div class='sidebar-header-v2'>
         <h2 class='sidebar-title-v2'>MediGuard LIS</h2>
         <p class='sidebar-subtitle-v2'>차세대 환자 안전 플랫폼</p>
@@ -44,7 +44,7 @@ export default function Nav() {
           </svg>
           <span>검사 결과 보기</span>
         </button>
-        <button class='nav-item-v2'href="/profile" data-link>
+        <button class='nav-item-v2'href="/profile" data-link id="btnNavProfile">
           <svg
             width='20'
             height='20'
@@ -62,15 +62,14 @@ export default function Nav() {
       </nav>
 
       <div class='sidebar-footer-v2'>
-        <button type='submit' class='btn-primary-v2'>
+        <button type='submit' class='btn-primary-v2' href="/login" data-link id="btnLogin">
           로그인
         </button>
-        <!--
-        <button class='user-info-v2'>
-          <div class='user-name-v2'>김의사</div>
-          <div class='user-role-v2'>의사</div>
+        <button class='user-info-v2' id="btnProfile">
+          <div class='user-name-v2' id="profile_name">123</div>
+          <div class='user-role-v2' id="profile_rule"></div>
         </button>
-        <button class='logout-btn-v2'>
+        <button class='logout-btn-v2' id="btnLogout">
           <svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
             <path
               d='M10.67 4.67L13.33 8L10.67 11.33'
@@ -82,7 +81,6 @@ export default function Nav() {
           </svg>
           <span>로그아웃</span>
         </button>
-        -->
       </div>
     </div>
   `;

@@ -40,6 +40,7 @@ const router = {
   init() {
     window.addEventListener('popstate', () => this.render());
     this.render();
+    // loginCheck();
   },
 
   navigate(path) {
@@ -92,6 +93,12 @@ const router = {
     const path = window.location.pathname;
     const route = routes[path];
 
+    // if (path == "") {
+    //   document.getElementById("Nav").style.display = "none";
+    // }else {
+    //   document.getElementById("Nav").style.display = "block";
+    // }
+
     if (!route) {
       layoutMounted = false;
       root.innerHTML = NotFoundPage();
@@ -114,7 +121,8 @@ const router = {
       app.innerHTML = route.page();
 
       setActiveNav();
-
+      loginCheck();
+      profileSet();
       return;
     }
 
@@ -133,6 +141,35 @@ function setActiveNav() {
   });
 }
 
+function loginCheck() {
+  const userId = localStorage.getItem('userId');
+  // window.alert("loginCheck");
+  if (!userId) {
+    document.getElementById('btnLogin').style.display = 'block';
+    document.getElementById('btnProfile').style.display = 'none';
+    document.getElementById('btnLogout').style.display = 'none';
+    document.getElementById('btnNavProfile').style.display = 'none';
+    // document.getElementById("btnNavProfile").style.visibility = "hidden";
+  } else {
+    document.getElementById('btnLogin').style.display = 'none';
+    document.getElementById('btnProfile').style.display = 'block';
+    document.getElementById('btnLogout').style.display = 'block';
+    document.getElementById('btnNavProfile').style.display = 'block';
+    // document.getElementById("btnNavProfile").style.visibility = "visible";
+  }
+}
+
+function profileSet() {
+  document.getElementById('profile_name').textContent =
+    localStorage.getItem('userNm');
+  document.getElementById('profile_rule').textContent =
+    localStorage.getItem('userRule');
+  document.getElementById('profile_main_name').value =
+    localStorage.getItem('userNm');
+  document.getElementById('profile_main_rule').value =
+    localStorage.getItem('userRule');
+}
+
 // const Main = () => `
 //   <div  class='page dashboard-page-v2'>
 //     <div id="root" class='dashboard-container-v2'>
@@ -144,6 +181,64 @@ window.router = router;
 globalThis.router = router;
 
 document.addEventListener('click', e => {
+  const loginMainBtn = e.target.closest('#btn_login_main');
+  if (loginMainBtn) {
+    const id = document.getElementById('email').value.trim();
+    const pw = document.getElementById('passwordV2').value.trim();
+
+    if (id === '') {
+      window.alert('ID 를 입력하십시오');
+      return;
+    }
+
+    if (pw === '') {
+      window.alert('PW 를 입력하십시오');
+      return;
+    }
+    //userId
+    localStorage.setItem('userId', id);
+    localStorage.setItem('userPw', pw);
+
+    localStorage.setItem('userNm', id);
+    localStorage.setItem('userRule', '의사');
+    e.preventDefault();
+    router.navigate('/');
+    return;
+  }
+
+  const btnLogout = e.target.closest('#btnLogout');
+  if (btnLogout) {
+    localStorage.clear();
+    router.navigate('/');
+    return;
+  }
+
+  const btnProfileMainSave = e.target.closest('#profile_main_save');
+  if (btnProfileMainSave) {
+    const id = document.getElementById('profile_main_name').value.trim();
+    const pw = document.getElementById('profile_main_rule').value.trim();
+
+    if (id === '') {
+      window.alert('이름을 입력하십시오.');
+      return;
+    }
+
+    if (pw === '') {
+      window.alert('직책을 입력하십시오.');
+      return;
+    }
+
+    localStorage.setItem('userNm', id);
+    localStorage.setItem('userRule', pw);
+    profileSet();
+  }
+
+  //   e.preventDefault();
+  //   window.alert("xptmxm")
+  //   return; //
+  // }
+
+  // 라우팅 용
   const link = e.target.closest('[data-link]');
 
   if (!link) {
@@ -152,7 +247,17 @@ document.addEventListener('click', e => {
 
   e.preventDefault();
   // navigate(link.getAttribute("href"));
-  router.navigate(link.getAttribute('href'));
+  if (link.getAttribute('href') === '/testResultView') {
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+      router.navigate('/login');
+    } else {
+      router.navigate(link.getAttribute('href'));
+    }
+  } else {
+    router.navigate(link.getAttribute('href'));
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {

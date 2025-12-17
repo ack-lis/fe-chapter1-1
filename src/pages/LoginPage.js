@@ -44,7 +44,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <button type='submit' class='btn-primary-v2'>
+        <button type='submit' class='btn-primary-v2' id="btn_login_main">
           로그인
         </button>
       </form>
