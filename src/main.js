@@ -1,4 +1,4 @@
-const LoginPage = () => `const
+const LoginPage = () => `
 <div class='page login-page-v2'>
   <div class='login-container-v2'>
     <div class='login-header'>
@@ -22,11 +22,12 @@ const LoginPage = () => `const
 
     <div class='login-card-v2'>
       <div class='card-title'>로그인</div>
-      <form class='login-form-v2'>
+      <form id='lginFrm' class='login-form-v2'>
         <div class='input-group-v2'>
-          <label htmlFor='email'>이메일</label>
+          <label id='lblEmail' htmlFor='email'>이메일</label>
           <input
             type='email'
+            name='email'
             id='email'
             placeholder='doctor@hospital.com'
             required
@@ -34,9 +35,10 @@ const LoginPage = () => `const
         </div>
 
         <div class='input-group-v2'>
-          <label htmlFor='passwordV2'>비밀번호</label>
+          <label id='lblPwd' htmlFor='passwordV2'>비밀번호</label>
           <input
             type='password'
+            name='passwordV2'
             id='passwordV2'
             placeholder='password123'
             required
@@ -121,7 +123,7 @@ const DashboardPage = () => `
           <div class='user-name-v2'>김의사</div>
           <div class='user-role-v2'>의사</div>
         </button>
-        <button class='logout-btn-v2'>
+        <button id='logButton' class='logout-btn-v2'>
           <svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
             <path
               d='M10.67 4.67L13.33 8L10.67 11.33'
@@ -713,7 +715,7 @@ const TestResultViewPage = () => `
           <div class="user-name-v2">김의사</div>
           <div class="user-role-v2">의사</div>
         </div>
-        <button class="logout-btn-v2">
+        <button id='logButton' class="logout-btn-v2">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10.67 4.67L13.33 8L10.67 11.33" stroke="#364153" stroke-width="1.33"/>
             <path d="M6 8H13.33" stroke="#364153" stroke-width="1.33"/>
@@ -1755,7 +1757,7 @@ const ProfilePage = () => `
           <div class='user-name-v2'>김의사</div>
           <div class='user-role-v2'>의사</div>
         </button>
-        <button class='logout-btn-v2'>
+        <button id='logButton' class='logout-btn-v2'>
           <svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
             <path
               d='M10.67 4.67L13.33 8L10.67 11.33'
@@ -1958,45 +1960,103 @@ const NotFoundPage = () => `
 // 모든 페이지를 합쳐서 표시
 document.body.innerHTML = `
 
-  ${LoginPage()}
-  ${DashboardPage()}
-  ${TestResultViewPage()}
-  ${NotFoundPage()}
-  ${ProfilePage()}
-`;
+      ${LoginPage()}
+      ${DashboardPage()}
+      ${TestResultViewPage()}
+      ${NotFoundPage()}
+      ${ProfilePage()}
+      `;
 
-const appDiv = window.document.defaultView;
 const dashBrdButton = document.getElementById('dashBrdButton');
 const resultButton = document.getElementById('resultButton');
 const viewPfButton = document.getElementById('viewPfButton');
+const logButton = document.getElementById('logButton');
+const lginFrm = document.getElementById('lginFrm');
+
 const PATH_DB = '/dashBoard';
 const PATH_RV = '/testResultView';
 const PATH_PF = '/profile';
+const PATH_LG = '/login';
 
 function addEventListenerAll() {
   const dashBrdButton = document.getElementById('dashBrdButton');
   const resultButton = document.getElementById('resultButton');
   const viewPfButton = document.getElementById('viewPfButton');
+  const logButton = document.getElementById('logButton');
+  const lginFrm = document.getElementById('lginFrm');
 
   dashBrdButton.addEventListener('click', function () {
-    //alert('dashboard');
+    //window.alert('dashboard');
     window.history.pushState({ path: PATH_DB }, '', PATH_DB);
 
     renderPageContent(PATH_DB);
   });
 
   resultButton.addEventListener('click', function () {
-    //alert('rslt');
+    //window.alert('rslt');
     window.history.pushState({ path: PATH_RV }, '', PATH_RV);
 
     renderPageContent(PATH_RV);
   });
 
   viewPfButton.addEventListener('click', function () {
-    //alert('pf');
+    //window.alert('pf');
     window.history.pushState({ path: PATH_PF }, '', PATH_PF);
 
     renderPageContent(PATH_PF);
+  });
+
+  logButton.addEventListener('click', function () {
+    //window.alert('lg');
+
+    const message = '로그아웃 하시겠습니까?';
+
+    const userYes = window.confirm(message);
+
+    if (userYes) {
+      window.alert('로그인 페이지로 이동합니다.');
+      // 로그인
+    } else {
+      window.alert('취소 버튼을 Click하셨습니다');
+      return;
+    }
+
+    window.history.pushState({ path: PATH_LG }, '', PATH_LG);
+
+    renderPageContent(PATH_LG);
+  });
+
+  lginFrm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Validation
+    //const frmData = new FormData(lginFrm);
+    // window.alert(
+    //   `email: ${frmData.get('email')}, password: ${frmData.get('passwordV2')}`
+    // );
+    //let sReturn = isValidLoginInfo(frmData);
+
+    let sReturn = isValidLoginInfo();
+
+    if (sReturn !== null) {
+      if (sReturn.length > 0) {
+        window.alert(sReturn);
+        return;
+      }
+    }
+
+    // 저장
+    //sReturn = saveLoginInfo(frmData);
+    sReturn = saveLoginInfo();
+
+    if (sReturn !== 'Y') {
+      return;
+    }
+
+    // Dashboard로
+    window.history.pushState({ path: PATH_DB }, '', PATH_DB);
+
+    renderPageContent(PATH_DB);
   });
 }
 
@@ -2010,17 +2070,6 @@ function renderPageContent(path) {
                     `;
 
     document.title = '과제 - ' + '대쉬보드';
-
-    /*
-    const resultButton = document.getElementById('resultButton');
-
-    resultButton.addEventListener('click', function () {
-      alert('rslt');
-      window.history.pushState({ path: PATH_RV }, '', PATH_RV);
-
-      renderPageContent(PATH_RV);
-    });
-    */
 
     addEventListenerAll();
   } else if (path === PATH_RV) {
@@ -2041,10 +2090,16 @@ function renderPageContent(path) {
     document.title = '과제 - ' + '프로필';
 
     addEventListenerAll();
+  } else if (path === PATH_LG) {
+    // 로그인
+    document.body.innerHTML = `
+                      ${LoginPage()}
+                    `;
+    document.title = '과제 - ' + '로그인';
+    addEventListenerAll();
   } else if (path === '/' || path === '/index.html') {
     // 메인 경로일 때 보여줄 HTML
     document.body.innerHTML = `
-
       ${LoginPage()}
       ${DashboardPage()}
       ${TestResultViewPage()}
@@ -2055,35 +2110,217 @@ function renderPageContent(path) {
     document.title = '홈';
   } else {
     // 404 Not Found 처리
-    appDiv.innerHTML = `
+    document.innerHTML = `
             <h2>404 - 페이지를 찾을 수 없습니다.</h2>
             <p>요청하신 ${path} 경로가 존재하지 않습니다.</p>
         `;
     document.title = '404';
   }
+}
 
-  //addEventListenerAll();
+/*
+function isValidLoginInfo(frmData) {
+  let sReturn = ``;
+  let sPwdLs = ``;
+
+  // const sEmail = frmData.get('email');
+  // const sPwdIn = frmData.get('passwordV2');
+
+  const sEmail = document.getElementById('email').value;
+  const sPwdIn = document.getElementById('passwordV2').value;
+
+  window.alert(sEmail);
+  window.alert(sPwdIn);
+
+  const sLblEmail = document.getElementById('lblEmail').textContent;
+  const sLblPwdIn = document.getElementById('lblPwd').textContent;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    if (localStorage.getItem('usrEmail').localeCompare(sEmail) === 0) {
+      sPwdLs = localStorage.getItem('usrPwd');
+      break;
+    }
+  }
+
+  if (!sEmail.endsWith('@ack.co.kr')) {
+    sReturn = `회사 ${sLblEmail}을 사용하여 로그인하시기 바랍니다.`;
+  }
+
+  if (sPwdLs.length === 0) {
+    if (sPwdIn.length < 8) {
+      if (sReturn.length > 0) {
+        sReturn = sReturn.concat('\r\n');
+        sReturn = sReturn.concat(
+          `${sLblPwdIn}는 8자리 이상을 사용하시기 바랍니다.`
+        );
+      } else {
+        sReturn = `${sLblPwdIn}는 8자리 이상을 사용하시기 바랍니다.`;
+      }
+    }
+  } else {
+    window.alert(`sPwdLs: ${sPwdLs}`);
+    if (sPwdIn.localeCompare(sPwdLs) !== 0) {
+      sReturn = `저장되어있는 ${sLblPwdIn}와 다릅니다.`;
+    }
+  }
+
+  return sReturn;
+}
+*/
+
+function isValidLoginInfo() {
+  let sReturn = '';
+  let sPwdLs = '';
+
+  // const sEmail = frmData.get('email');
+  // const sPwdIn = frmData.get('passwordV2');
+
+  const sEmail = document.getElementById('email').value;
+  const sPwdIn = document.getElementById('passwordV2').value;
+
+  window.alert(sEmail);
+  window.alert(sPwdIn);
+
+  const sLblEmail = document.getElementById('lblEmail').textContent;
+  const sLblPwdIn = document.getElementById('lblPwd').textContent;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    if (localStorage.getItem('usrEmail').localeCompare(sEmail) === 0) {
+      sPwdLs = localStorage.getItem('usrPwd');
+      break;
+    }
+  }
+
+  if (!sEmail.endsWith('@ack.co.kr')) {
+    sReturn = `회사 ${sLblEmail}을 사용하여 로그인하시기 바랍니다.`;
+  }
+
+  if (sPwdLs.length === 0) {
+    if (sPwdIn.length < 8) {
+      if (sReturn.length > 0) {
+        sReturn = sReturn.concat('\r\n');
+        sReturn = sReturn.concat(
+          `${sLblPwdIn}는 8자리 이상을 사용하시기 바랍니다.`
+        );
+      } else {
+        sReturn = `${sLblPwdIn}는 8자리 이상을 사용하시기 바랍니다.`;
+      }
+    }
+  } else {
+    window.alert(`sPwdLs: ${sPwdLs}`);
+    if (sPwdIn.localeCompare(sPwdLs) !== 0) {
+      sReturn = `저장되어있는 ${sLblPwdIn}와 다릅니다.`;
+    }
+  }
+
+  return sReturn;
+}
+
+/*
+function saveLoginInfo(frmData) {
+  let sReturn = ``;
+
+  const sEmail = frmData.get('email');
+  const sPwdIn = frmData.get('passwordV2');
+
+  localStorage.clear();
+  localStorage.setItem('usrEmail', sEmail);
+  localStorage.setItem('usrPwd', sPwdIn);
+
+  sReturn = 'Y';
+
+  return sReturn;
+}
+*/
+
+function saveLoginInfo() {
+  let sReturn = '';
+
+  const sEmail = document.getElementById('email').value;
+  const sPwdIn = document.getElementById('passwordV2').value;
+
+  localStorage.clear();
+  localStorage.setItem('usrEmail', sEmail);
+  localStorage.setItem('usrPwd', sPwdIn);
+
+  sReturn = 'Y';
+
+  return sReturn;
 }
 
 dashBrdButton.addEventListener('click', function () {
-  //alert('dashboard');
+  //window.alert('dashboard');
   window.history.pushState({ path: PATH_DB }, '', PATH_DB);
 
   renderPageContent(PATH_DB);
 });
 
 resultButton.addEventListener('click', function () {
-  //alert('rslt');
+  //window.alert('rslt');
   window.history.pushState({ path: PATH_RV }, '', PATH_RV);
 
   renderPageContent(PATH_RV);
 });
 
 viewPfButton.addEventListener('click', function () {
-  //alert('pf');
+  //window.alert('pf');
   window.history.pushState({ path: PATH_PF }, '', PATH_PF);
 
   renderPageContent(PATH_PF);
+});
+
+logButton.addEventListener('click', function () {
+  //window.alert('lg');
+
+  const message = '로그아웃 하시겠습니까?';
+
+  const userYes = window.confirm(message);
+
+  if (userYes) {
+    window.alert('로그인 페이지로 이동합니다.');
+    // 로그인
+  } else {
+    window.alert('취소 버튼을 Click하셨습니다');
+    return;
+  }
+
+  window.history.pushState({ path: PATH_LG }, '', PATH_LG);
+
+  renderPageContent(PATH_LG);
+});
+
+lginFrm.addEventListener('submit', function (e) {
+  window.alert('preventDefault');
+  e.preventDefault();
+
+  // Validation
+  //const frmData = new FormData(lginFrm);
+  // window.alert(
+  //   `email: ${frmData.get('email')}, password: ${frmData.get('passwordV2')}`
+  // );
+  //let sReturn = isValidLoginInfo(frmData);
+
+  let sReturn = isValidLoginInfo();
+
+  if (sReturn !== null) {
+    if (sReturn.length > 0) {
+      window.alert(sReturn);
+      return;
+    }
+  }
+
+  // 저장
+  //sReturn = saveLoginInfo(frmData);
+  sReturn = saveLoginInfo();
+
+  if (sReturn !== 'Y') {
+    return;
+  }
+
+  // Dashboard로
+  window.history.pushState({ path: PATH_DB }, '', PATH_DB);
+
+  renderPageContent(PATH_DB);
 });
 
 window.addEventListener('popstate', function () {
