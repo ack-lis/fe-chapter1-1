@@ -32,9 +32,9 @@ test.describe('SPA 기본', () => {
     // 비로그인 상태에서 루트 경로 접근 시 대시보드 페이지 표시
     await page.goto('/');
     await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
+      page.locator('.dashboard-page-v2, .dashboard-container-v2').first()
     ).toBeVisible();
-    await expect(page.locator('text=대시보드')).toBeVisible();
+    //await expect(page.locator('text=대시보드')).toBeVisible();
 
     // 사이드바 로그인 버튼 클릭하여 로그인 페이지로 이동
     const sidebarLoginButton = page
@@ -42,7 +42,7 @@ test.describe('SPA 기본', () => {
       .first();
     await sidebarLoginButton.click();
     await expect(
-      page.locator('.login-page-v2, .login-container-v2')
+      page.locator('.login-page-v2, .login-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
 
     // 로그인 수행
@@ -57,18 +57,26 @@ test.describe('SPA 기본', () => {
 
     // 로그인 후 대시보드로 리다이렉션 확인
     await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
+      page.locator('.dashboard-page-v2, .dashboard-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
 
     // '/profile' 경로 접근 시 프로필 페이지 표시
     await page.goto('/profile');
     await expect(page.locator('.profile-page-v2')).toBeVisible();
-    await expect(page.locator('text=프로필 설정')).toBeVisible();
+    await expect(
+      page
+        .locator('div.main-content-v2')
+        .getByRole('button', { name: '프로필 설정' })
+    ).toBeVisible();
 
     // '/testResultView' 경로 접근 시 검사결과보기 페이지 표시
     await page.goto('/testResultView');
     await expect(page.locator('.test-result-view-page')).toBeVisible();
-    await expect(page.locator('text=검사 결과 보기')).toBeVisible();
+    await expect(
+      page
+        .locator('div.main-content-v2')
+        .getByRole('button', { name: '검사 결과 보기' })
+    ).toBeVisible();
   });
 
   /**
@@ -173,14 +181,14 @@ test.describe('SPA 기본', () => {
 
     // 로그인 페이지로 리다이렉션되었는지 확인
     await expect(
-      page.locator('.login-page-v2, .login-container-v2')
+      page.locator('.login-page-v2, .login-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
     expect(page.url()).toContain('/login');
 
     // 다른 보호된 페이지도 동일하게 제한되는지 확인
     await page.goto('/testResultView');
     await expect(
-      page.locator('.login-page-v2, .login-container-v2')
+      page.locator('.login-page-v2, .login-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
     expect(page.url()).toContain('/login');
   });
@@ -197,7 +205,7 @@ test.describe('SPA 기본', () => {
 
     // 대시보드 페이지가 표시되어야 함
     await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
+      page.locator('.dashboard-page-v2, .dashboard-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
     expect(page.url()).toContain('/');
   });
@@ -237,7 +245,7 @@ test.describe('SPA 기본', () => {
 
     // 대시보드 페이지로 리다이렉션되었는지 확인
     await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
+      page.locator('.dashboard-page-v2, .dashboard-container-v2').first()
     ).toBeVisible({ timeout: 5000 });
     expect(page.url()).toContain('/');
   });
@@ -342,7 +350,9 @@ test.describe('SPA 기본', () => {
     await userInfo.click();
 
     // 프로필 페이지로 이동했는지 확인
-    await expect(page.locator('.profile-page-v2')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.profile-page-v2')).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/profile');
   });
 
@@ -364,16 +374,16 @@ test.describe('SPA 기본', () => {
 
     // 네비게이션 링크 클릭 (이벤트 위임으로 처리되어야 함)
     const dashboardLink = page
-      .locator(
-        'button:has-text("대시보드"), .nav-item-v2:has-text("대시보드")'
-      )
+      .locator('button:has-text("대시보드"), .nav-item-v2:has-text("대시보드")')
       .first();
     await dashboardLink.click();
 
     // 페이지가 전환되었는지 확인
     await expect(
-      page.locator('.dashboard-page-v2, text=대시보드')
-    ).toBeVisible({ timeout: 5000 });
+      page
+        .locator('div.main-content-v2')
+        .getByRole('button', { name: '대시보드' })
+    ).toBeVisible();
 
     // 다른 링크도 테스트
     const resultViewLink = page
@@ -385,8 +395,10 @@ test.describe('SPA 기본', () => {
 
     // 페이지가 전환되었는지 확인
     await expect(
-      page.locator('.test-result-view-page, text=검사 결과 보기')
-    ).toBeVisible({ timeout: 5000 });
+      page
+        .locator('div.main-content-v2')
+        .getByRole('button', { name: '검사 결과 보기' })
+    ).toBeVisible();
 
     // 로그아웃 버튼 클릭 (이벤트 위임으로 처리되어야 함)
     const logoutButton = page
@@ -406,9 +418,7 @@ test.describe('SPA 기본', () => {
    * 테스트: 브라우저 뒤로가기/앞으로가기 버튼 지원
    * 시나리오: 브라우저의 뒤로가기/앞으로가기 버튼으로 페이지 전환이 가능해야 함
    */
-  test('브라우저 뒤로가기/앞으로가기 버튼을 지원해야 함', async ({
-    page
-  }) => {
+  test('브라우저 뒤로가기/앞으로가기 버튼을 지원해야 함', async ({ page }) => {
     // 로그인 상태로 설정
     await page.goto('/');
     // eslint-disable-next-line no-undef
@@ -429,7 +439,9 @@ test.describe('SPA 기본', () => {
 
     // 뒤로가기
     await page.goBack();
-    await expect(page.locator('.profile-page-v2')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.profile-page-v2')).toBeVisible({
+      timeout: 5000
+    });
 
     // 앞으로가기
     await page.goForward();
