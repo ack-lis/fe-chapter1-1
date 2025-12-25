@@ -2590,6 +2590,28 @@ nav button:active {
   background: #e5e7eb;
 }
 
+.login-btn-v2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 0 0 12px;
+  height: 40px;
+  border: none;
+  background: #155dfc;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1.5em;
+  letter-spacing: -1.953125%;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.login-btn-v2:hover {
+  background: #1248c9;
+}
+
 .sidebar-collapse-btn-v2 {
   display: flex;
   align-items: center;

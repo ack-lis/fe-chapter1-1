@@ -23,7 +23,7 @@
     "lint:fix": "eslint src/ e2e/ *.js --fix",
     "format": "prettier --write \"src/**/*.{js,css,html}\" \"e2e/**/*.js\" \"*.{js,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,css,html}\" \"e2e/**/*.js\" \"*.{js,json,md}\"",
-    "prepare": "husky install",
+    "prepare": "husky install && chmod +x .husky/*",
     "clean": "rimraf dist coverage playwright-report test-results",
     "typecheck": "tsc --noEmit"
   },

@@ -10,6 +10,8 @@ export default [
         window: 'readonly',
         document: 'readonly',
         console: 'readonly',
+        localStorage: 'readonly',
+        global: 'writable',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
@@ -19,7 +21,9 @@ export default [
         FormData: 'readonly',
         Event: 'readonly',
         Element: 'readonly',
-        HTMLElement: 'readonly'
+        HTMLElement: 'readonly',
+        PopStateEvent: 'readonly',
+        alert: 'readonly'
       }
     },
     rules: {
