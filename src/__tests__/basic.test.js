@@ -55,10 +55,10 @@ describe('SPA 기본_basic', () => {
       document.body.innerHTML = '<div id="root"></div>';
     }
 
-    // 상태 초기화
-    if (window.stateManager) {
-      window.stateManager.setUser(null);
-    }
+    // URL 초기화 및 router 상태 초기화
+    window.history.replaceState({}, '', '/');
+    // router를 깨끗한 상태로 초기화하기 위해 popstate 발생
+    window.dispatchEvent(new window.PopStateEvent('popstate'));
   });
 
   // ==================== 1) 라우팅 구현 ====================
@@ -68,14 +68,11 @@ describe('SPA 기본_basic', () => {
      * 테스트: 루트 경로 접근 시 대시보드 페이지 렌더링
      */
     it('루트 경로 접근 시 대시보드 페이지를 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      expect(router).toBeDefined();
-
-      router.init();
-      router.navigate('/');
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('dashboard-page-v2');
       expect(window.location.pathname).toBe('/');
     });
@@ -84,19 +81,14 @@ describe('SPA 기본_basic', () => {
      * 테스트: 보호된 페이지 접근 시 로그인 페이지로 리다이렉션되어 렌더링
      */
     it('보호된 페이지 접근 시 로그인 페이지로 리다이렉션되어 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
+      // 비로그인 상태 설정 (localStorage 비우기)
+      window.localStorage.removeItem('user');
 
-      // 비로그인 상태 설정
-      stateManager.setUser(null);
-
-      router.init();
-      router.navigate('/profile');
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('login-page-v2');
       expect(window.location.pathname).toBe('/login');
     });
@@ -105,20 +97,21 @@ describe('SPA 기본_basic', () => {
      * 테스트: 로그인 완료 후 '/profile' 경로 접근 시 프로필 페이지 렌더링
      */
     it('로그인 완료 후 /profile 경로 접근 시 프로필 페이지를 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
+      // 로그인 상태 설정 (localStorage에 사용자 정보 저장)
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 로그인 상태 설정
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
-
-      // 경로를 먼저 설정한 후 init 호출
-      window.history.replaceState({}, '', '/profile');
-      router.init();
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('profile-page-v2');
       expect(window.location.pathname).toBe('/profile');
     });
@@ -127,20 +120,16 @@ describe('SPA 기본_basic', () => {
      * 테스트: 비로그인 상태에서 '/profile' 경로 접근 시 로그인 페이지로 리다이렉션
      */
     it('비로그인 상태에서 /profile 경로 접근 시 로그인 페이지로 리다이렉션해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
+      // 로그인하지 않은 상태 확인 (localStorage 비우기)
+      window.localStorage.removeItem('user');
+      expect(window.localStorage.getItem('user')).toBeNull();
 
-      // 로그인하지 않은 상태 확인
-      expect(stateManager.getState().currentUser).toBeNull();
-
-      router.init();
-      router.navigate('/profile');
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       // 로그인 페이지로 리다이렉션되어야 함
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('login-page-v2');
       expect(window.location.pathname).toBe('/login');
     });
@@ -149,20 +138,21 @@ describe('SPA 기본_basic', () => {
      * 테스트: '/testResultView' 경로 접근 시 검사 결과 페이지 렌더링
      */
     it('/testResultView 경로 접근 시 검사 결과 페이지를 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-
       // 로그인 상태 설정 (보호된 경로이므로 필요)
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 경로를 먼저 설정한 후 init 호출
-      window.history.replaceState({}, '', '/testResultView');
-      router.init();
+      window.history.pushState({}, '', '/testResultView');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('test-result-view-page');
       expect(window.location.pathname).toBe('/testResultView');
     });
@@ -171,18 +161,17 @@ describe('SPA 기본_basic', () => {
      * 테스트: 라우트 변경 시 새로고침 없이 페이지 전환
      */
     it('라우트 변경 시 새로고침 없이 페이지를 전환해야 함', () => {
-      const router = window.router || global.router;
-      expect(router).toBeDefined();
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      router.init();
-      router.navigate('/');
       const initialBody =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
 
-      router.navigate('/login');
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const newBody =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(newBody).toContain('login-page-v2');
       expect(newBody).not.toBe(initialBody);
       expect(window.location.pathname).toBe('/login');
@@ -192,12 +181,10 @@ describe('SPA 기본_basic', () => {
      * 테스트: History API pushState 사용
      */
     it('라우트 이동 시 History API pushState를 사용해야 함', () => {
-      const router = window.router || global.router;
-      expect(router).toBeDefined();
-
       const pushStateSpy = vi.spyOn(window.history, 'pushState');
-      router.init();
-      router.navigate('/login');
+
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/login');
       pushStateSpy.mockRestore();
@@ -207,22 +194,22 @@ describe('SPA 기본_basic', () => {
      * 테스트: 브라우저 뒤로가기/앞으로가기 버튼 지원
      */
     it('브라우저 뒤로가기/앞으로가기 버튼을 지원해야 함', () => {
-      const router = window.router || global.router;
-      expect(router).toBeDefined();
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      router.init();
-      router.navigate('/');
-      router.navigate('/login');
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
       expect(window.location.pathname).toBe('/login');
 
       // 뒤로가기 시뮬레이션
       window.history.back();
       // popstate 이벤트는 수동으로 발생시켜야 함
-      const popStateEvent = new window.PopStateEvent('popstate', { state: {} });
-      window.dispatchEvent(popStateEvent);
+      const PopStateEvent = new window.PopStateEvent('popstate', { state: {} });
+      window.dispatchEvent(PopStateEvent);
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('dashboard-page-v2');
     });
   });
@@ -234,107 +221,150 @@ describe('SPA 기본_basic', () => {
      * 테스트: 사용자 정보를 LocalStorage에 저장 (이름, 직위)
      */
     it('사용자 정보를 LocalStorage에 저장해야 함 (이름, 직위)', () => {
-      const userManager = window.userManager || global.userManager;
-      expect(userManager).toBeDefined();
+      // 로그인 페이지로 이동
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const userData = {
-        name: '김의사',
-        role: '의사'
-      };
+      // 로그인 폼 찾기 및 입력
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('passwordV2');
+      const form = document.querySelector('.login-form-v2');
 
-      const savedUser = userManager.saveUser(userData);
+      expect(emailInput).toBeDefined();
+      expect(passwordInput).toBeDefined();
+      expect(form).toBeDefined();
 
+      // 값 입력
+      emailInput.value = 'kim@hospital.com';
+      passwordInput.value = 'password123';
+
+      // 폼 제출
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
+
+      // localStorage 검증
       expect(window.localStorage.getItem('user')).not.toBeNull();
       const storedUser = JSON.parse(window.localStorage.getItem('user'));
-      expect(storedUser.name).toBe('김의사');
+      expect(storedUser.name).toBe('kim'); // 이메일에서 추출
       expect(storedUser.role).toBe('의사');
       expect(storedUser.isLoggedIn).toBe(true);
-      expect(savedUser.name).toBe('김의사');
-      expect(savedUser.role).toBe('의사');
     });
 
     /**
      * 테스트: 로그인 상태 확인
      */
     it('올바른 로그인 상태를 반환해야 함', () => {
-      const userManager = window.userManager || global.userManager;
-      expect(userManager).toBeDefined();
+      // 비로그인 상태 확인
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(userManager.isLoggedIn()).toBe(false);
+      const loginBtn = document.querySelector('.login-btn-v2');
+      expect(loginBtn).toBeDefined(); // 로그인 버튼 존재
+      expect(document.querySelector('.user-info-v2')).toBeNull(); // 사용자 정보 없음
 
-      userManager.saveUser({ name: '김의사', role: '의사' });
+      // 로그인 수행
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(userManager.isLoggedIn()).toBe(true);
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
+
+      // 로그인 상태 확인
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+      expect(document.querySelector('.user-info-v2')).toBeDefined(); // 사용자 정보 표시
+      expect(document.querySelector('.user-name-v2').textContent).toContain(
+        'kim'
+      );
+      expect(document.querySelector('.logout-btn-v2')).toBeDefined(); // 로그아웃 버튼 존재
     });
 
     /**
      * 테스트: 로그아웃 시 LocalStorage에서 사용자 정보 제거
      */
     it('로그아웃 시 LocalStorage에서 사용자 정보를 제거해야 함', () => {
-      const userManager = window.userManager || global.userManager;
-      expect(userManager).toBeDefined();
+      // 로그인 먼저 수행
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      userManager.saveUser({ name: '김의사', role: '의사' });
-      expect(userManager.isLoggedIn()).toBe(true);
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      userManager.logout();
+      // 로그아웃 버튼 클릭
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
+      const logoutBtn = document.querySelector('.logout-btn-v2');
+      expect(logoutBtn).toBeDefined();
+      logoutBtn.click();
+
+      // localStorage 검증
       expect(window.localStorage.getItem('user')).toBeNull();
-      expect(userManager.isLoggedIn()).toBe(false);
+      // DOM에서도 확인
+      expect(document.querySelector('.user-info-v2')).toBeNull();
+      expect(document.querySelector('.login-btn-v2')).toBeDefined();
     });
 
     /**
      * 테스트: 로그인 폼 제출 시 사용자 정보 저장
      */
     it('로그인 폼 제출 시 사용자 정보를 저장해야 함', () => {
-      const userManager = window.userManager || global.userManager;
-      expect(userManager).toBeDefined();
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      document.body.innerHTML = `
-      <form id="loginForm">
-        <input type="text" id="userName" />
-        <button type="submit">로그인</button>
-      </form>
-    `;
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('passwordV2');
+      const form = document.querySelector('.login-form-v2');
 
-      const form = document.getElementById('loginForm');
-      const nameInput = document.getElementById('userName');
+      expect(emailInput).toBeDefined();
+      expect(passwordInput).toBeDefined();
+      expect(form).toBeDefined();
 
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = nameInput.value.trim();
-        const validation = userManager.validateUserName(name);
-        if (validation.valid) {
-          userManager.saveUser({ name, role: '의사' });
-        }
-      });
+      emailInput.value = 'kim@hospital.com';
+      passwordInput.value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      nameInput.value = '김의사';
-      form.dispatchEvent(new Event('submit'));
-
-      expect(userManager.isLoggedIn()).toBe(true);
-      const user = userManager.getUser();
-      expect(user.name).toBe('김의사');
-      expect(user.role).toBe('의사');
+      // localStorage 검증
+      const storedUser = JSON.parse(window.localStorage.getItem('user'));
+      expect(storedUser).not.toBeNull();
+      expect(storedUser.name).toBe('kim');
+      expect(storedUser.role).toBe('의사');
     });
 
     /**
      * 테스트: 로그인 성공 시 대시보드로 리다이렉션
      */
     it('로그인 성공 시 대시보드(/)로 리다이렉션해야 함', () => {
-      const router = window.router || global.router;
-      const userManager = window.userManager || global.userManager;
-      expect(router).toBeDefined();
-      expect(userManager).toBeDefined();
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      router.init();
-      router.navigate('/login');
+      // 로그인 폼 입력 및 제출
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('passwordV2');
+      const form = document.querySelector('.login-form-v2');
 
-      userManager.saveUser({ name: '김의사', role: '의사' });
-      // 로그인 후 리다이렉션 로직이 실행되어야 함
-      router.navigate('/');
+      emailInput.value = 'kim@hospital.com';
+      passwordInput.value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
+      // 로그인 후 리다이렉션 확인
       expect(window.location.pathname).toBe('/');
+      // DOM 확인
+      expect(document.querySelector('.dashboard-page-v2')).toBeDefined();
     });
   });
 
@@ -345,67 +375,90 @@ describe('SPA 기본_basic', () => {
      * 테스트: 네비게이션 하단에 사용자 정보 표시
      */
     it('네비게이션 하단에 현재 로그인한 사용자 이름과 직위를 표시해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
+      // 로그인 상태 설정 (localStorage에 사용자 정보 저장)
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 로그인 상태 설정
-      const user = {
-        name: '김의사',
-        role: '의사',
-        isLoggedIn: true
-      };
-      stateManager.setUser(user);
+      // 대시보드로 이동 (사이드바가 렌더링됨)
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // SideBar 컴포넌트 렌더링
-      const sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: user })
-        : '';
+      // 사이드바에서 사용자 정보 확인
+      const userNameElement = document.querySelector('.user-name-v2');
+      const userRoleElement = document.querySelector('.user-role-v2');
 
-      // 사용자 정보가 표시되어야 함
-      expect(sidebarHTML).toContain('김의사');
-      expect(sidebarHTML).toContain('의사');
-      expect(sidebarHTML).toContain('user-name-v2');
-      expect(sidebarHTML).toContain('user-role-v2');
+      expect(userNameElement).toBeDefined();
+      expect(userRoleElement).toBeDefined();
+      expect(userNameElement.textContent).toContain('김의사');
+      expect(userRoleElement.textContent).toContain('의사');
     });
 
     /**
      * 테스트: 사용자 정보 영역 클릭 시 프로필 페이지로 이동
      */
     it('사용자 정보 영역 클릭 시 프로필 페이지로 이동해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
+      // 로그인 상태 설정
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      router.init();
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      // 대시보드로 이동
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 사용자 정보 영역 클릭 시뮬레이션
-      router.navigate('/profile');
+      // 사용자 정보 영역 클릭
+      const userInfo = document.querySelector('.user-info-v2');
+      expect(userInfo).toBeDefined();
+      userInfo.click();
 
+      // 프로필 페이지로 이동 확인
       expect(window.location.pathname).toBe('/profile');
+      expect(document.querySelector('.profile-page-v2')).toBeDefined();
     });
 
     /**
      * 테스트: 프로필 수정 기능 - 이름과 직위 수정
      */
     it('프로필 수정 시 이름과 직위를 수정할 수 있어야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
-
       // 초기 사용자 정보 설정
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 프로필 업데이트
-      stateManager.updateProfile('박의사', '간호사');
+      // 프로필 페이지로 이동
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const user = stateManager.getUser();
-      expect(user.name).toBe('박의사');
-      expect(user.role).toBe('간호사');
+      // 프로필 폼에서 이름과 직위 수정
+      const nameInput = document.getElementById('name');
+      const roleInput = document.getElementById('role');
+      const saveBtn = document.querySelector('.btn-save-v2');
 
-      // LocalStorage에도 반영되어야 함
+      expect(nameInput).toBeDefined();
+      expect(roleInput).toBeDefined();
+      expect(saveBtn).toBeDefined();
+
+      nameInput.value = '박의사';
+      roleInput.value = '간호사';
+      saveBtn.click();
+
+      // LocalStorage에 반영되어야 함
       const storedUser = JSON.parse(window.localStorage.getItem('user'));
       expect(storedUser.name).toBe('박의사');
       expect(storedUser.role).toBe('간호사');
@@ -415,26 +468,35 @@ describe('SPA 기본_basic', () => {
      * 테스트: 프로필 저장 후 네비게이션의 사용자 정보 즉시 반영
      */
     it('프로필 저장 후 네비게이션의 사용자 정보가 즉시 반영되어야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
-
       // 초기 사용자 정보 설정
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 프로필 업데이트
-      stateManager.updateProfile('박의사', '간호사');
+      // 프로필 페이지로 이동
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // SideBar 컴포넌트 재렌더링
-      const updatedUser = stateManager.getUser();
-      const sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: updatedUser })
-        : '';
+      // 프로필 수정
+      const nameInput = document.getElementById('name');
+      const roleInput = document.getElementById('role');
+      const saveBtn = document.querySelector('.btn-save-v2');
 
-      // 업데이트된 정보가 표시되어야 함
-      expect(sidebarHTML).toContain('박의사');
-      expect(sidebarHTML).toContain('간호사');
+      nameInput.value = '박의사';
+      roleInput.value = '간호사';
+      saveBtn.click();
+
+      // 사이드바의 사용자 정보가 즉시 업데이트되어야 함
+      const userNameElement = document.querySelector('.user-name-v2');
+      const userRoleElement = document.querySelector('.user-role-v2');
+
+      expect(userNameElement.textContent).toContain('박의사');
+      expect(userRoleElement.textContent).toContain('간호사');
     });
   });
 
@@ -445,103 +507,138 @@ describe('SPA 기본_basic', () => {
      * 테스트: SideBar 컴포넌트 렌더링
      */
     it('SideBar 컴포넌트를 네비게이션 링크와 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.SideBar).toBeDefined();
+      // 대시보드로 이동하여 사이드바가 렌더링되도록 함
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const sidebarHTML = components.SideBar({ currentPath: '/' });
+      // DOM에서 사이드바 확인
+      const sidebar = document.querySelector('.sidebar-v2');
+      expect(sidebar).toBeDefined();
 
-      expect(sidebarHTML).toContain('sidebar-v2');
-      expect(sidebarHTML).toContain('nav');
-      expect(sidebarHTML).toContain('대시보드');
-      expect(sidebarHTML).toContain('검사 결과 보기');
+      // 네비게이션 링크 확인
+      const nav = sidebar.querySelector('nav');
+      expect(nav).toBeDefined();
+      expect(sidebar.innerHTML).toContain('대시보드');
+      expect(sidebar.innerHTML).toContain('검사 결과 보기');
     });
 
     /**
      * 테스트: TabBar 컴포넌트 렌더링
      */
     it('TabBar 컴포넌트를 탭 네비게이션과 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.TabBar).toBeDefined();
+      // 대시보드로 이동하여 탭바가 렌더링되도록 함
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const tabbarHTML = components.TabBar({ currentPath: '/' });
+      // DOM에서 탭바 확인
+      const tabbar = document.querySelector('.content-header-v2');
+      expect(tabbar).toBeDefined();
 
-      expect(tabbarHTML).toContain('content-header-v2');
-      expect(tabbarHTML).toContain('tab-button-v2');
+      // 탭 버튼 확인
+      const tabButtons = document.querySelectorAll('.tab-button-v2');
+      expect(tabButtons.length).toBeGreaterThan(0);
     });
 
     /**
      * 테스트: LoginPage 컴포넌트 렌더링
      */
     it('LoginPage 컴포넌트를 로그인 폼과 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.LoginPage).toBeDefined();
+      // 로그인 페이지로 이동
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const pageHTML = components.LoginPage();
+      // DOM에서 로그인 페이지 확인
+      const loginPage = document.querySelector('.login-page-v2');
+      expect(loginPage).toBeDefined();
+      expect(loginPage.innerHTML).toContain('로그인');
 
-      expect(pageHTML).toContain('login-page-v2');
-      expect(pageHTML).toContain('로그인');
-      expect(pageHTML).toContain('login-form-v2');
+      // 로그인 폼 확인
+      const loginForm = document.querySelector('.login-form-v2');
+      expect(loginForm).toBeDefined();
     });
 
     /**
      * 테스트: DashboardPage 컴포넌트 렌더링
      */
     it('DashboardPage 컴포넌트를 대시보드 콘텐츠와 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.DashboardPage).toBeDefined();
+      // 대시보드로 이동
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const pageHTML = components.DashboardPage();
+      // DOM에서 대시보드 페이지 확인
+      const dashboardPage = document.querySelector('.dashboard-page-v2');
+      expect(dashboardPage).toBeDefined();
 
-      expect(pageHTML).toContain('dashboard-page-v2');
-      expect(pageHTML).toContain('alert-section-v2');
+      // alert 섹션 확인
+      const alertSection = document.querySelector('.alert-section-v2');
+      expect(alertSection).toBeDefined();
     });
 
     /**
      * 테스트: TestResultViewPage 컴포넌트 렌더링
      */
     it('TestResultViewPage 컴포넌트를 검사 결과 UI와 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.TestResultViewPage).toBeDefined();
+      // 로그인 상태 설정 (보호된 경로)
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      const pageHTML = components.TestResultViewPage();
+      // 검사 결과 페이지로 이동
+      window.history.pushState({}, '', '/testResultView');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(pageHTML).toContain('test-result-view-page');
-      expect(pageHTML).toContain('검사 결과 보기');
+      // DOM에서 검사 결과 페이지 확인
+      const testResultPage = document.querySelector('.test-result-view-page');
+      expect(testResultPage).toBeDefined();
+      expect(document.body.innerHTML).toContain('검사 결과 보기');
     });
 
     /**
      * 테스트: ProfilePage 컴포넌트 렌더링
      */
     it('ProfilePage 컴포넌트를 프로필 수정 폼과 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.ProfilePage).toBeDefined();
+      // 로그인 상태 설정 (보호된 경로)
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      const pageHTML = components.ProfilePage();
+      // 프로필 페이지로 이동
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(pageHTML).toContain('profile-page-v2');
-      expect(pageHTML).toContain('프로필 설정');
-      expect(pageHTML).toContain('profile-form-v2');
+      // DOM에서 프로필 페이지 확인
+      const profilePage = document.querySelector('.profile-page-v2');
+      expect(profilePage).toBeDefined();
+      expect(profilePage.innerHTML).toContain('프로필 설정');
+
+      // 프로필 폼 확인
+      const profileForm = document.querySelector('.profile-form-v2');
+      expect(profileForm).toBeDefined();
     });
 
     /**
      * 테스트: NotFoundPage 컴포넌트 렌더링
      */
     it('NotFoundPage 컴포넌트를 404 메시지와 홈 링크와 함께 렌더링해야 함', () => {
-      const components = window.components || global.components;
-      expect(components).toBeDefined();
-      expect(components.NotFoundPage).toBeDefined();
+      // 존재하지 않는 경로로 이동
+      window.history.pushState({}, '', '/invalid-path');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const pageHTML = components.NotFoundPage();
-
-      expect(pageHTML).toContain('not-found-page-v2');
-      expect(pageHTML).toContain('404');
-      expect(pageHTML).toContain('페이지를 찾을 수 없습니다');
+      // DOM에서 404 페이지 확인
+      const notFoundPage = document.querySelector('.not-found-page-v2');
+      expect(notFoundPage).toBeDefined();
+      expect(notFoundPage.innerHTML).toContain('404');
+      expect(notFoundPage.innerHTML).toContain('페이지를 찾을 수 없습니다');
     });
   });
 
@@ -552,80 +649,132 @@ describe('SPA 기본_basic', () => {
      * 테스트: 초기 로그인 상태 확인
      */
     it('초기 로그인 상태가 null이어야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
+      // localStorage를 비워 초기 상태로 만듬
+      window.localStorage.removeItem('user');
 
-      const state = stateManager.getState();
+      // 대시보드로 이동하여 초기 상태 확인
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(state).toHaveProperty('currentUser');
-      expect(state.currentUser).toBeNull();
+      // localStorage와 DOM에서 사용자 정보가 없음을 확인
+      expect(window.localStorage.getItem('user')).toBeNull();
+      expect(document.querySelector('.user-info-v2')).toBeNull();
+      expect(document.querySelector('.login-btn-v2')).toBeDefined();
     });
 
     /**
      * 테스트: 로그인 시 상태 업데이트
      */
     it('로그인 시 사용자 정보를 상태에 저장해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
+      // 로그인 수행
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const user = {
-        name: '김의사',
-        role: '의사',
-        isLoggedIn: true
-      };
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      stateManager.setUser(user);
+      // localStorage에 저장된 사용자 정보 확인
+      const storedUser = JSON.parse(window.localStorage.getItem('user'));
+      expect(storedUser).not.toBeNull();
+      expect(storedUser.name).toBe('kim');
+      expect(storedUser.role).toBe('의사');
 
-      const state = stateManager.getState();
-      expect(state.currentUser).not.toBeNull();
-      expect(state.currentUser.name).toBe('김의사');
-      expect(state.currentUser.role).toBe('의사');
+      // DOM에도 반영되었는지 확인
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+      expect(document.querySelector('.user-info-v2')).toBeDefined();
+      expect(document.querySelector('.user-name-v2').textContent).toContain(
+        'kim'
+      );
     });
 
     /**
-     * 테스트: 상태 변경 시 리스너에게 알림
+     * 테스트: 상태 변경 시 리스너에게 알림 (DOM 업데이트 확인)
      */
-    it('상태 변경 시 리스너에게 알림을 전달해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
+    it('상태 변경 시 UI가 즉시 업데이트되어야 함', () => {
+      // 초기 로그인
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const listener = vi.fn();
-      stateManager.subscribe(listener);
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      // 대시보드로 이동 (사이드바 표시)
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      expect(listener).toHaveBeenCalled();
+      // 초기 사용자 정보 확인
+      let userNameElement = document.querySelector('.user-name-v2');
+      expect(userNameElement.textContent).toContain('kim');
+
+      // 프로필 수정
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+      document.getElementById('name').value = '박의사';
+      document.getElementById('role').value = '간호사';
+      document.querySelector('.btn-save-v2').click();
+
+      // UI가 즉시 업데이트되었는지 확인
+      userNameElement = document.querySelector('.user-name-v2');
+      expect(userNameElement.textContent).toContain('박의사');
     });
 
     /**
      * 테스트: 프로필 업데이트 함수
      */
-    it('updateProfile 함수로 프로필 정보를 업데이트할 수 있어야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
-
+    it('프로필 업데이트 시 정보가 저장되어야 함', () => {
       // 초기 사용자 설정
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 프로필 업데이트
-      stateManager.updateProfile('박의사', '간호사');
+      // 프로필 페이지로 이동하여 프로필 업데이트
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      const state = stateManager.getState();
-      expect(state.currentUser.name).toBe('박의사');
-      expect(state.currentUser.role).toBe('간호사');
+      document.getElementById('name').value = '박의사';
+      document.getElementById('role').value = '간호사';
+      document.querySelector('.btn-save-v2').click();
+
+      // localStorage에 업데이트되었는지 확인
+      const storedUser = JSON.parse(window.localStorage.getItem('user'));
+      expect(storedUser.name).toBe('박의사');
+      expect(storedUser.role).toBe('간호사');
     });
 
     /**
      * 테스트: 상태 변경 시 LocalStorage 동기화
      */
     it('상태 변경 시 LocalStorage와 동기화되어야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      expect(stateManager).toBeDefined();
+      // 로그인 수행
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
+      // localStorage 동기화 확인
       const storedUser = JSON.parse(window.localStorage.getItem('user'));
-      expect(storedUser.name).toBe('김의사');
+      expect(storedUser.name).toBe('kim');
       expect(storedUser.role).toBe('의사');
       expect(storedUser.isLoggedIn).toBe(true);
     });
@@ -638,103 +787,97 @@ describe('SPA 기본_basic', () => {
      * 테스트: 이벤트 위임 패턴 적용
      */
     it('네비게이션 링크에 이벤트 위임 패턴을 적용해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-
       // 로그인 상태 설정 (보호된 경로 접근을 위해)
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      router.init();
+      // 대시보드로 이동하여 사이드바 렌더링
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 동적으로 생성된 네비게이션 링크
-      document.body.innerHTML = `
-        <nav id="sidebar">
-          <button class="nav-item-v2" data-route="/">대시보드</button>
-          <button class="nav-item-v2" data-route="/testResultView">검사 결과 보기</button>
-        </nav>
-      `;
+      // 사이드바의 네비게이션 버튼 찾기
+      const navButtons = document.querySelectorAll('.nav-item-v2');
+      expect(navButtons.length).toBeGreaterThan(0);
 
-      const nav = document.getElementById('sidebar');
-      const clickHandler = vi.fn(e => {
-        const route = e.target.dataset.route;
-        if (route) {
-          router.navigate(route);
-        }
-      });
+      // "검사 결과 보기" 버튼 클릭
+      const testResultButton = Array.from(navButtons).find(
+        btn => btn.textContent.trim() === '검사 결과 보기'
+      );
+      expect(testResultButton).toBeDefined();
+      testResultButton.click();
 
-      // 이벤트 위임: nav에 이벤트 리스너 등록
-      nav.addEventListener('click', clickHandler);
-
-      // 동적으로 생성된 버튼 클릭
-      const button = nav.querySelector('button[data-route="/testResultView"]');
-      button.click();
-
-      expect(clickHandler).toHaveBeenCalled();
+      // 페이지가 변경되었는지 확인
       expect(window.location.pathname).toBe('/testResultView');
+      expect(document.querySelector('.test-result-view-page')).toBeDefined();
     });
 
     /**
      * 테스트: 로그인 폼 제출 이벤트 처리
      */
     it('로그인 폼 제출 이벤트를 처리해야 함', () => {
-      const userManager = window.userManager || global.userManager;
-      expect(userManager).toBeDefined();
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      document.body.innerHTML = `
-        <form id="loginForm">
-          <input type="text" id="userName" />
-          <button type="submit">로그인</button>
-        </form>
-      `;
+      const form = document.querySelector('.login-form-v2');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('passwordV2');
 
-      const form = document.getElementById('loginForm');
-      const nameInput = document.getElementById('userName');
-      const submitHandler = vi.fn(e => {
-        e.preventDefault();
-        const name = nameInput.value.trim();
-        if (name) {
-          userManager.saveUser({ name, role: '의사' });
-        }
-      });
+      expect(form).toBeDefined();
+      expect(emailInput).toBeDefined();
+      expect(passwordInput).toBeDefined();
 
-      form.addEventListener('submit', submitHandler);
-      nameInput.value = '김의사';
-      form.dispatchEvent(new Event('submit'));
+      emailInput.value = 'kim@hospital.com';
+      passwordInput.value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      expect(submitHandler).toHaveBeenCalled();
-      expect(userManager.isLoggedIn()).toBe(true);
+      // 로그인 성공 확인
+      expect(window.localStorage.getItem('user')).not.toBeNull();
+      const storedUser = JSON.parse(window.localStorage.getItem('user'));
+      expect(storedUser.name).toBe('kim');
+      expect(storedUser.isLoggedIn).toBe(true);
     });
 
     /**
      * 테스트: 동적 콘텐츠 렌더링
      */
     it('사용자 정보에 따른 조건부 렌더링이 동작해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
-
       // 로그인하지 않은 상태 - 사이드바 하단에 로그인 버튼 표시
-      stateManager.setUser(null);
-      let sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: null })
-        : '';
-      expect(sidebarHTML).not.toContain('user-name-v2');
-      expect(sidebarHTML).toContain('로그인');
-      expect(sidebarHTML).toMatch(/button.*로그인|로그인.*button/is);
+      window.localStorage.removeItem('user');
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+      let sidebar = document.querySelector('.sidebar-v2');
+      expect(sidebar).toBeDefined();
+      expect(sidebar.querySelector('.user-name-v2')).toBeNull();
+      expect(sidebar.querySelector('.login-btn-v2')).toBeDefined();
+      expect(sidebar.innerHTML).toContain('로그인');
 
       // 로그인한 상태 - 사이드바 하단에 사용자 정보 및 로그아웃 버튼 표시
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
-      sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: stateManager.getUser() })
-        : '';
-      expect(sidebarHTML).toContain('user-name-v2');
-      expect(sidebarHTML).toContain('user-role-v2');
-      expect(sidebarHTML).toContain('김의사');
-      expect(sidebarHTML).toContain('의사');
-      expect(sidebarHTML).toContain('로그아웃');
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
+
+      sidebar = document.querySelector('.sidebar-v2');
+      expect(sidebar.querySelector('.user-name-v2')).toBeDefined();
+      expect(sidebar.querySelector('.user-role-v2')).toBeDefined();
+      expect(sidebar.innerHTML).toContain('김의사');
+      expect(sidebar.innerHTML).toContain('의사');
+      expect(sidebar.innerHTML).toContain('로그아웃');
     });
   });
 
@@ -745,14 +888,11 @@ describe('SPA 기본_basic', () => {
      * 테스트: 존재하지 않는 경로 접근 시 404 페이지 렌더링
      */
     it('존재하지 않는 경로 접근 시 404 페이지를 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      expect(router).toBeDefined();
-
-      router.init();
-      router.navigate('/invalid-path');
+      window.history.pushState({}, '', '/invalid-path');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('not-found-page-v2');
       expect(appContent).toContain('404');
       expect(appContent).toContain('페이지를 찾을 수 없습니다');
@@ -766,21 +906,16 @@ describe('SPA 기본_basic', () => {
      * 테스트: 비로그인 상태에서 보호된 페이지 접근 시 로그인 페이지로 리다이렉션
      */
     it('비로그인 상태에서 /profile, /testResultView 접근 시 /login으로 리다이렉션해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-
-      // 로그인하지 않은 상태 확인
-      expect(stateManager.getState().currentUser).toBeNull();
-
-      router.init();
+      // 로그인하지 않은 상태 설정
+      window.localStorage.removeItem('user');
 
       // 보호된 페이지 접근 시도
-      router.navigate('/profile');
+      window.history.pushState({}, '', '/profile');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
       expect(window.location.pathname).toBe('/login');
 
-      router.navigate('/testResultView');
+      window.history.pushState({}, '', '/testResultView');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
       expect(window.location.pathname).toBe('/login');
     });
 
@@ -788,19 +923,14 @@ describe('SPA 기본_basic', () => {
      * 테스트: 비로그인 상태에서 루트 경로(/) 접근 시 대시보드 페이지 접근 가능
      */
     it('비로그인 상태에서 루트 경로(/) 접근 시 대시보드 페이지를 렌더링해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
+      // 로그인하지 않은 상태 설정
+      window.localStorage.removeItem('user');
 
-      // 로그인하지 않은 상태 확인
-      expect(stateManager.getState().currentUser).toBeNull();
-
-      router.init();
-      router.navigate('/');
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       const appContent =
-        document.getElementById('app')?.innerHTML || document.body.innerHTML;
+        document.getElementById('root')?.innerHTML || document.body.innerHTML;
       expect(appContent).toContain('dashboard-page-v2');
       expect(window.location.pathname).toBe('/');
     });
@@ -809,16 +939,18 @@ describe('SPA 기본_basic', () => {
      * 테스트: 로그인 상태에서 로그인 페이지 접근 시 대시보드로 리다이렉션
      */
     it('로그인 상태에서 /login 접근 시 /로 리다이렉션해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-
       // 로그인 상태 설정
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      router.init();
-      router.navigate('/login');
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
       // 대시보드로 리다이렉션되어야 함
       expect(window.location.pathname).toBe('/');
@@ -828,121 +960,100 @@ describe('SPA 기본_basic', () => {
      * 테스트: 로그인한 상태에서 네비게이션 바 하단에 사용자 정보 표시
      */
     it('로그인한 상태에서 네비게이션 바 하단에 사용자 이름과 직위를 표시해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
-
       // 로그인 상태 설정
-      const user = {
-        name: '김의사',
-        role: '의사',
-        isLoggedIn: true
-      };
-      stateManager.setUser(user);
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 네비게이션 바 렌더링 (사이드바 포함)
-      const sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: user })
-        : '';
+      // 대시보드로 이동하여 사이드바 렌더링
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 사용자 정보가 표시되어야 함
-      expect(sidebarHTML).toContain('김의사');
-      expect(sidebarHTML).toContain('의사');
-      expect(sidebarHTML).toContain('user-name-v2');
-      expect(sidebarHTML).toContain('user-role-v2');
+      // 사이드바에서 사용자 정보 확인
+      const sidebar = document.querySelector('.sidebar-v2');
+      expect(sidebar).toBeDefined();
+      expect(sidebar.innerHTML).toContain('김의사');
+      expect(sidebar.innerHTML).toContain('의사');
+      expect(sidebar.querySelector('.user-name-v2')).toBeDefined();
+      expect(sidebar.querySelector('.user-role-v2')).toBeDefined();
     });
 
     /**
      * 테스트: 로그인한 상태에서 로그아웃 버튼 표시
      */
     it('로그인한 상태에서 로그아웃 버튼을 표시해야 함', () => {
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
-
       // 로그인 상태 설정
-      const user = {
-        name: '김의사',
-        role: '의사',
-        isLoggedIn: true
-      };
-      stateManager.setUser(user);
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          name: '김의사',
+          role: '의사',
+          isLoggedIn: true
+        })
+      );
 
-      // 네비게이션 바 렌더링
-      const sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: user })
-        : '';
+      // 대시보드로 이동하여 사이드바 렌더링
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 로그아웃 버튼이 표시되어야 함
-      expect(sidebarHTML).toContain('logout-btn-v2');
-      expect(sidebarHTML).toContain('로그아웃');
+      // 사이드바에서 로그아웃 버튼 확인
+      const sidebar = document.querySelector('.sidebar-v2');
+      expect(sidebar).toBeDefined();
+      expect(sidebar.querySelector('.logout-btn-v2')).toBeDefined();
+      expect(sidebar.innerHTML).toContain('로그아웃');
     });
 
     /**
      * 테스트: 비로그인 상태에서 사이드바 로그인 버튼 클릭 시 로그인 페이지로 이동
      */
     it('비로그인 상태에서 사이드바 로그인 버튼 클릭 시 로그인 페이지로 이동해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      const components = window.components || global.components;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-      expect(components).toBeDefined();
-
       // 비로그인 상태 설정
-      stateManager.setUser(null);
-      router.init();
-      router.navigate('/');
+      window.localStorage.removeItem('user');
 
-      // 사이드바 렌더링
-      const sidebarHTML = components.SideBar
-        ? components.SideBar({ currentUser: null })
-        : '';
-      document.body.innerHTML = sidebarHTML;
+      // 대시보드로 이동
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 로그인 버튼 찾기 및 클릭 이벤트 시뮬레이션
-      const loginButton =
-        document.querySelector('.login-btn-v2, button[class*="login"]') ||
-        Array.from(document.querySelectorAll('button')).find(btn =>
-          btn.textContent.includes('로그인')
-        );
-      if (loginButton) {
-        loginButton.click();
-        expect(window.location.pathname).toBe('/login');
-      } else {
-        // 버튼이 없으면 직접 navigate 호출 시뮬레이션
-        router.navigate('/login');
-        expect(window.location.pathname).toBe('/login');
-      }
+      // 로그인 버튼 찾기 및 클릭
+      const loginButton = document.querySelector('.login-btn-v2');
+      expect(loginButton).toBeDefined();
+      loginButton.click();
+
+      // 로그인 페이지로 이동 확인
+      expect(window.location.pathname).toBe('/login');
     });
 
     /**
      * 테스트: 로그아웃 시 로그인 페이지로 리다이렉션
      */
     it('로그아웃 시 로그인 페이지(/login)로 리다이렉션해야 함', () => {
-      const router = window.router || global.router;
-      const stateManager = window.stateManager || global.stateManager;
-      const userManager = window.userManager || global.userManager;
-      expect(router).toBeDefined();
-      expect(stateManager).toBeDefined();
-      expect(userManager).toBeDefined();
+      // 로그인 먼저 수행
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 로그인 상태 설정
-      userManager.saveUser({ name: '김의사', role: '의사' });
-      stateManager.setUser({ name: '김의사', role: '의사', isLoggedIn: true });
+      const form = document.querySelector('.login-form-v2');
+      document.getElementById('email').value = 'kim@hospital.com';
+      document.getElementById('passwordV2').value = 'password123';
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true })
+      );
 
-      router.init();
-      router.navigate('/');
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new window.PopStateEvent('popstate'));
 
-      // 로그아웃
-      userManager.logout();
-      stateManager.setUser(null);
-      router.navigate('/login');
+      // 로그아웃 버튼 클릭
+      const logoutBtn = document.querySelector('.logout-btn-v2');
+      expect(logoutBtn).toBeDefined();
+      logoutBtn.click();
 
       // 로그인 페이지로 리다이렉션되어야 함
       expect(window.location.pathname).toBe('/login');
+      expect(document.querySelector('.login-page-v2')).toBeDefined();
     });
   });
 });

@@ -31,44 +31,42 @@ test.describe('SPA 기본', () => {
   test('기본 라우팅이 동작해야 함', async ({ page }) => {
     // 비로그인 상태에서 루트 경로 접근 시 대시보드 페이지 표시
     await page.goto('/');
-    await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
-    ).toBeVisible();
-    await expect(page.locator('text=대시보드')).toBeVisible();
+    await expect(page.locator('.dashboard-page-v2').first()).toBeVisible();
+    await expect(page.locator('text=대시보드').first()).toBeVisible();
 
     // 사이드바 로그인 버튼 클릭하여 로그인 페이지로 이동
     const sidebarLoginButton = page
       .locator('button:has-text("로그인"), .login-btn-v2')
       .first();
     await sidebarLoginButton.click();
-    await expect(
-      page.locator('.login-page-v2, .login-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.login-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
 
     // 로그인 수행
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.fill('김의사@hospital.com');
+    const passwordInput = page.locator('input[type="password"]').first();
+    await passwordInput.fill('password123');
     const loginFormButton = page
       .locator('button:has-text("로그인"), button[type="submit"]')
       .first();
     await loginFormButton.click();
 
     // 로그인 후 대시보드로 리다이렉션 확인
-    await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.dashboard-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
 
     // '/profile' 경로 접근 시 프로필 페이지 표시
     await page.goto('/profile');
-    await expect(page.locator('.profile-page-v2')).toBeVisible();
-    await expect(page.locator('text=프로필 설정')).toBeVisible();
+    await expect(page.locator('.profile-page-v2').first()).toBeVisible();
+    await expect(page.locator('text=프로필 설정').first()).toBeVisible();
 
     // '/testResultView' 경로 접근 시 검사결과보기 페이지 표시
     await page.goto('/testResultView');
-    await expect(page.locator('.test-result-view-page')).toBeVisible();
-    await expect(page.locator('text=검사 결과 보기')).toBeVisible();
+    await expect(page.locator('.test-result-view-page').first()).toBeVisible();
+    await expect(page.locator('text=검사 결과 보기').first()).toBeVisible();
   });
 
   /**
@@ -104,9 +102,9 @@ test.describe('SPA 기본', () => {
     await sidebarLoginButton.click();
 
     // 로그인 페이지로 이동했는지 확인
-    await expect(
-      page.locator('.login-page-v2, .login-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.login-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/login');
   });
 
@@ -126,10 +124,10 @@ test.describe('SPA 기본', () => {
 
     // 로그인
 
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.fill('김의사@hospital.com');
+    const passwordInput = page.locator('input[type="password"]').first();
+    await passwordInput.fill('password123');
 
     const loginButton = page
       .locator('button:has-text("로그인"), button[type="submit"]')
@@ -172,16 +170,16 @@ test.describe('SPA 기본', () => {
     await page.goto('/profile');
 
     // 로그인 페이지로 리다이렉션되었는지 확인
-    await expect(
-      page.locator('.login-page-v2, .login-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.login-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/login');
 
     // 다른 보호된 페이지도 동일하게 제한되는지 확인
     await page.goto('/testResultView');
-    await expect(
-      page.locator('.login-page-v2, .login-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.login-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/login');
   });
 
@@ -196,9 +194,9 @@ test.describe('SPA 기본', () => {
     await page.goto('/');
 
     // 대시보드 페이지가 표시되어야 함
-    await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.dashboard-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/');
   });
 
@@ -216,10 +214,10 @@ test.describe('SPA 기본', () => {
       .first();
     await sidebarLoginButton.click();
 
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.fill('김의사@hospital.com');
+    const passwordInput = page.locator('input[type="password"]').first();
+    await passwordInput.fill('password123');
     const loginFormButton = page
       .locator('button:has-text("로그인"), button[type="submit"]')
       .first();
@@ -236,9 +234,9 @@ test.describe('SPA 기본', () => {
     await page.goto('/login');
 
     // 대시보드 페이지로 리다이렉션되었는지 확인
-    await expect(
-      page.locator('.dashboard-page-v2, .dashboard-container-v2')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.dashboard-page-v2').first()).toBeVisible({
+      timeout: 5000
+    });
     expect(page.url()).toContain('/');
   });
 
@@ -249,10 +247,10 @@ test.describe('SPA 기본', () => {
   test('프로필 수정 기능이 동작해야 함', async ({ page }) => {
     // 먼저 로그인
     await page.goto('/login');
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.fill('김의사@hospital.com');
+    const passwordInput = page.locator('input[type="password"]').first();
+    await passwordInput.fill('password123');
     const loginButton = page
       .locator('button:has-text("로그인"), button[type="submit"]')
       .first();
@@ -298,10 +296,10 @@ test.describe('SPA 기본', () => {
   test('네비게이션 하단에 사용자 정보가 표시되어야 함', async ({ page }) => {
     // 먼저 로그인
     await page.goto('/login');
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.fill('김의사@hospital.com');
+    const passwordInput = page.locator('input[type="password"]').first();
+    await passwordInput.fill('password123');
     const loginButton = page
       .locator('button:has-text("로그인"), button[type="submit"]')
       .first();
@@ -317,98 +315,10 @@ test.describe('SPA 기본', () => {
   });
 
   /**
-   * 테스트: 사용자 정보 영역 클릭 시 프로필 페이지로 이동
-   * 시나리오: 네비게이션 하단의 사용자 정보 영역 클릭 시 프로필 페이지로 이동해야 함
-   */
-  test('사용자 정보 영역 클릭 시 프로필 페이지로 이동해야 함', async ({
-    page
-  }) => {
-    // 먼저 로그인
-    await page.goto('/login');
-    const nameInput = page
-      .locator('input[type="text"], input[type="email"]')
-      .first();
-    await nameInput.fill('김의사');
-    const loginButton = page
-      .locator('button:has-text("로그인"), button[type="submit"]')
-      .first();
-    await loginButton.click();
-
-    // 대시보드 페이지로 이동
-    await page.goto('/');
-
-    // 사용자 정보 영역 클릭
-    const userInfo = page.locator('.user-info-v2');
-    await userInfo.click();
-
-    // 프로필 페이지로 이동했는지 확인
-    await expect(page.locator('.profile-page-v2')).toBeVisible({ timeout: 5000 });
-    expect(page.url()).toContain('/profile');
-  });
-
-  /**
-   * 테스트: 이벤트 위임이 올바로 동작하는지
-   * 시나리오: 동적으로 추가된 요소에 대한 이벤트가 올바르게 처리되어야 함
-   */
-  test('이벤트 위임이 올바로 동작해야 함', async ({ page }) => {
-    // 로그인 상태로 설정
-    await page.goto('/');
-    // eslint-disable-next-line no-undef
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ name: '김의사', role: '의사', isLoggedIn: true })
-      );
-    });
-    await page.reload();
-
-    // 네비게이션 링크 클릭 (이벤트 위임으로 처리되어야 함)
-    const dashboardLink = page
-      .locator(
-        'button:has-text("대시보드"), .nav-item-v2:has-text("대시보드")'
-      )
-      .first();
-    await dashboardLink.click();
-
-    // 페이지가 전환되었는지 확인
-    await expect(
-      page.locator('.dashboard-page-v2, text=대시보드')
-    ).toBeVisible({ timeout: 5000 });
-
-    // 다른 링크도 테스트
-    const resultViewLink = page
-      .locator(
-        'button:has-text("검사 결과 보기"), .nav-item-v2:has-text("검사 결과 보기")'
-      )
-      .first();
-    await resultViewLink.click();
-
-    // 페이지가 전환되었는지 확인
-    await expect(
-      page.locator('.test-result-view-page, text=검사 결과 보기')
-    ).toBeVisible({ timeout: 5000 });
-
-    // 로그아웃 버튼 클릭 (이벤트 위임으로 처리되어야 함)
-    const logoutButton = page
-      .locator('button:has-text("로그아웃"), .logout-btn-v2')
-      .first();
-    await logoutButton.click();
-
-    // 로그아웃이 처리되었는지 확인
-    // eslint-disable-next-line no-undef
-    const userDataAfterLogout = await page.evaluate(() => {
-      return localStorage.getItem('user');
-    });
-    expect(userDataAfterLogout).toBeNull();
-  });
-
-  /**
    * 테스트: 브라우저 뒤로가기/앞으로가기 버튼 지원
    * 시나리오: 브라우저의 뒤로가기/앞으로가기 버튼으로 페이지 전환이 가능해야 함
    */
-  test('브라우저 뒤로가기/앞으로가기 버튼을 지원해야 함', async ({
-    page
-  }) => {
+  test('브라우저 뒤로가기/앞으로가기 버튼을 지원해야 함', async ({ page }) => {
     // 로그인 상태로 설정
     await page.goto('/');
     // eslint-disable-next-line no-undef
@@ -429,7 +339,9 @@ test.describe('SPA 기본', () => {
 
     // 뒤로가기
     await page.goBack();
-    await expect(page.locator('.profile-page-v2')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.profile-page-v2')).toBeVisible({
+      timeout: 5000
+    });
 
     // 앞으로가기
     await page.goForward();

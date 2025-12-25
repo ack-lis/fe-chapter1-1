@@ -5,7 +5,6 @@ import TestResultViewPage from './pages/TestResultViewPage.js';
 import LoginPage from './pages/LoginPage.js';
 import ProfilePage from './pages/ProfilePage.js';
 import NotFoundPage from './pages/NotFoundPage.js';
-import NavPage from './pages/Nav.js';
 
 const routes = {
   // '/': () => DashboardPage,
@@ -13,15 +12,10 @@ const routes = {
   // '/login': () => LoginPage,
   // '/profile': () => ProfilePage
 
-  '/': { page: DashboardPage, layout: true, title: '대시보드' },
-  '/testResultView': {
-    page: TestResultViewPage,
-    layout: true,
-    title: '검사 결과 보기'
-  },
+  '/': { page: DashboardPage, layout: true },
+  '/testResultView': { page: TestResultViewPage, layout: true },
   '/login': { page: LoginPage, layout: false },
-  '/profile': { page: ProfilePage, layout: true, title: '프로필 설정' },
-  '/Nav': { page: NavPage, layout: true }
+  '/profile': { page: ProfilePage, layout: true }
 };
 
 // export function navigate(path) {
@@ -126,8 +120,6 @@ const router = {
 
       app.innerHTML = route.page();
 
-      document.getElementById('TabBar').textContent = route.title;
-
       setActiveNav();
       loginCheck();
       profileSet();
@@ -158,19 +150,12 @@ function loginCheck() {
     document.getElementById('btnLogout').style.display = 'none';
     document.getElementById('btnNavProfile').style.display = 'none';
     // document.getElementById("btnNavProfile").style.visibility = "hidden";
-    // AppState.is
-    // AppState.
-    // AppState.isProfileActive = false;
-    // AppState.isProfileActive = false;
   } else {
     document.getElementById('btnLogin').style.display = 'none';
-    document.getElementById('btnProfile').style.display = 'flex';
-    document.getElementById('btnLogout').style.display = 'flex';
-    document.getElementById('btnNavProfile').style.display = 'flex';
+    document.getElementById('btnProfile').style.display = 'block';
+    document.getElementById('btnLogout').style.display = 'block';
+    document.getElementById('btnNavProfile').style.display = 'block';
     // document.getElementById("btnNavProfile").style.visibility = "visible";
-    // AppState.isProfileActive = true;
-    // const {isState} =
-    // AppState.isProfileActive = true;
   }
 }
 
