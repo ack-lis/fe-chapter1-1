@@ -6,22 +6,14 @@ import {
   TestResultViewPage
 } from './pages/index.js';
 import { globalStore } from './stores/index.js';
-import { ForbiddenError, UnauthorizedError } from './errors/index.js';
 import { router } from './router.js';
 import { render } from './render.js';
 
-/**
- * AuthGuard: 인증 보호 래퍼
- * @param {Function} validation - 로그인 상태를 검증하는 함수
- * @param {Error} CustomError - validation 실패 시 던질 에러 클래스
- * @param {Function} Component - 렌더링할 페이지 컴포넌트
- * @returns {Function} 보호된 페이지 컴포넌트
- */
-const AuthGuard = (validation, CustomError, Component) => {
+const AuthGuard = (validation, errorMessage, Component) => {
   return () => {
     const { loggedIn } = globalStore.getState();
     if (validation(loggedIn)) {
-      throw new CustomError();
+      throw new Error(errorMessage);
     }
     return Component();
   };
@@ -31,11 +23,11 @@ const AuthGuard = (validation, CustomError, Component) => {
 router.set(
   createRouter({
     '/': DashboardPage,
-    '/login': AuthGuard(Boolean, ForbiddenError, LoginPage),
-    '/profile': AuthGuard(value => !value, UnauthorizedError, ProfilePage),
+    '/login': AuthGuard(Boolean, 'error', LoginPage),
+    '/profile': AuthGuard(value => !value, 'login error', ProfilePage),
     '/testResultView': AuthGuard(
       value => !value,
-      UnauthorizedError,
+      'login error',
       TestResultViewPage
     )
   })

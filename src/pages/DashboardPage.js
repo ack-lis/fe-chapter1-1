@@ -1,30 +1,5 @@
-import { SideBar } from '../components/SideBar.js';
-import { TabBar } from '../components/TabBar.js';
-import { globalStore } from '../stores/index.js';
-
 export const DashboardPage = () => {
-  const { currentUser } = globalStore.getState();
-  const routeName = 'dashboard';
-
-  const sidebar = SideBar({
-    activeRoute: routeName,
-    currentUser,
-    showCollapseButton: false
-  });
-  const tabbar = TabBar({
-    activeTab: routeName,
-    showProfileTab: false
-  });
-
   return `
-  <div class="page dashboard-page-v2">
-    <div class="dashboard-container-v2">
-      ${sidebar}
-      
-      <div class="main-content-v2">
-        ${tabbar}
-        
-        <div class="content-body-v2">
           <div class="alert-section-v2">
             <div class="alert-header-v2">
               <div class="alert-title-group-v2">
@@ -398,8 +373,5 @@ export const DashboardPage = () => {
                 </div>
               </div>
         </div>
-      </div>
-    </div>
-  </div>
 `;
 };

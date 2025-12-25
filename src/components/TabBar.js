@@ -1,10 +1,3 @@
-/* eslint-env browser */
-/**
- * TabBar 컴포넌트
- * @param {Object} options - 탭바 옵션
- * @param {string} options.activeTab - 활성화된 탭 ('dashboard' | 'testResultView' | 'profile')
- * @returns {string} 탭바 HTML 문자열
- */
 export const TabBar = ({ activeTab = 'dashboard' }) => {
   const isDashboardActive = activeTab === 'dashboard';
   const isTestResultViewActive = activeTab === 'testResultView';

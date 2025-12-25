@@ -1,30 +1,7 @@
-import { SideBar } from '../components/SideBar.js';
-import { TabBar } from '../components/TabBar.js';
-import { globalStore } from '../stores/index.js';
+import { addEvent } from '../utils/index.js';
 
 export const TestResultViewPage = () => {
-  const { currentUser } = globalStore.getState();
-  const routeName = 'testResultView';
-
-  const sidebar = SideBar({
-    activeRoute: routeName,
-    currentUser,
-    showCollapseButton: true
-  });
-  const tabbar = TabBar({
-    activeTab: routeName,
-    showProfileTab: false
-  });
-
   return `
-  <div class="page test-result-view-page">
-    <div class="dashboard-container-v2">
-      ${sidebar}
-              
-      <div class="main-content-v2">
-        ${tabbar}
-        
-        <div class="content-body-v2">
           <div class="test-result-layout-v2">
             <div class="test-result-left-v2">
               <div class="search-conditions-card-v2">
@@ -976,8 +953,27 @@ export const TestResultViewPage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 `;
 };
+
+// 검색 결과 테이블 행 클릭 시 환자 ID 표시 및 하이라이트
+addEvent('click', '.data-table-v2 tbody tr', e => {
+  const row = e.target.closest('tr');
+  if (!row) {
+    return;
+  }
+
+  // 모든 행에서 하이라이트 클래스 제거
+  const allRows = document.querySelectorAll('.data-table-v2 tbody tr');
+  allRows.forEach(r => r.classList.remove('table-row-highlight-v2'));
+
+  // 클릭한 행에 하이라이트 클래스 추가
+  row.classList.add('table-row-highlight-v2');
+
+  // 세 번째 td 요소(환자ID) 가져오기
+  const patientIdCell = row.querySelector('td:nth-child(3)');
+  if (patientIdCell) {
+    const patientId = patientIdCell.textContent.trim();
+    alert(`환자 ID: ${patientId}`);
+  }
+});

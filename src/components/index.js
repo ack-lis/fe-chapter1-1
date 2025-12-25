@@ -7,3 +7,4 @@
 
 export { SideBar } from './SideBar.js';
 export { TabBar } from './TabBar.js';
+export { Layout } from './Layout.js';

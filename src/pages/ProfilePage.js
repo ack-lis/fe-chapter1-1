@@ -1,36 +1,13 @@
-import { SideBar } from '../components/SideBar.js';
-import { TabBar } from '../components/TabBar.js';
 import { globalStore } from '../stores/index.js';
-import { userStorage } from '../storages/index.js';
 import { addEvent } from '../utils/index.js';
 
 export const ProfilePage = () => {
-  const { currentUser } = globalStore.getState();
-  const routeName = 'profile';
-
-  const sidebar = SideBar({
-    activeRoute: routeName,
-    currentUser,
-    showCollapseButton: false
-  });
-  const tabbar = TabBar({
-    activeTab: routeName,
-    showProfileTab: false
-  });
-
   // 현재 사용자 정보에서 이름과 직책 가져오기
+  const { currentUser } = globalStore.getState();
   const userName = currentUser?.name || '';
   const userRole = currentUser?.role || '';
 
   return `
-  <div class="page profile-page-v2">
-    <div class="dashboard-container-v2">
-      ${sidebar}
-
-      <div class="main-content-v2">
-        ${tabbar}
-
-        <div class="content-body-v2">
           <div class="page-header-v2">
             <div>
               <h2 class="page-title-v2">프로필 설정</h2>
@@ -60,7 +37,7 @@ export const ProfilePage = () => {
               </div>
           </div>
 
-            <form class="profile-form-v2" id="profile-form">
+            <form class="profile-form-v2" id="profile-form" novalidate>
               <div class="form-section-v2">
                 <h4 class="form-section-title-v2">기본 정보</h4>
                 <div class="form-group-v2">
@@ -102,17 +79,14 @@ export const ProfilePage = () => {
             </form>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 `;
 };
 
 function updateProfile(profile) {
   const { currentUser } = globalStore.getState();
   const user = { ...currentUser, ...profile };
+  // setState가 자동으로 localStorage에 저장
   globalStore.setState({ currentUser: user });
-  userStorage.set(user);
   alert('프로필이 성공적으로 변경되었습니다.');
 }
 

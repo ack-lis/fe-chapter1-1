@@ -1,19 +1,7 @@
-/* eslint-env browser */
 import { addEvent } from '../utils/index.js';
 import { router } from '../router.js';
 import { globalStore } from '../stores/index.js';
-import { userStorage } from '../storages/index.js';
 
-/**
- * SideBar 컴포넌트
- * @param {Object} options - 사이드바 옵션
- * @param {string} options.activeRoute - 활성화된 라우트 ('dashboard' | 'testResultView' | 'profile')
- * @param {Object|null} options.currentUser - 현재 사용자 정보 (null이면 비로그인 상태)
- * @param {string} options.currentUser.name - 사용자 이름
- * @param {string} options.currentUser.role - 사용자 직위
- * @param {boolean} options.showCollapseButton - 접기 버튼 표시 여부 (기본값: false)
- * @returns {string} 사이드바 HTML 문자열
- */
 export const SideBar = ({
   activeRoute = 'dashboard',
   currentUser = null,
@@ -118,7 +106,8 @@ export const SideBar = ({
 // 네비게이션 아이템 클릭 핸들러
 addEvent('click', '.nav-item-v2', e => {
   e.preventDefault();
-  const route = e.target.closest('.nav-item-v2').getAttribute('data-route');
+  const button = e.target.closest('.nav-item-v2');
+  const route = button?.getAttribute('data-route');
   if (route) {
     router.get().push(route);
   }
@@ -133,8 +122,8 @@ addEvent('click', '.login-btn-v2', e => {
 // 로그아웃 버튼 클릭 핸들러
 addEvent('click', '.logout-btn-v2', e => {
   e.preventDefault();
+  // setState가 자동으로 localStorage에서 제거
   globalStore.setState({ currentUser: null });
-  userStorage.reset();
   router.get().push('/login');
 });
 
