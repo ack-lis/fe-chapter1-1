@@ -21,7 +21,11 @@ export default [
         FormData: 'readonly',
         Event: 'readonly',
         Element: 'readonly',
-        HTMLElement: 'readonly'
+        HTMLElement: 'readonly',
+        location: 'readonly',
+        history: 'readonly',
+        navigation: 'readonly',
+        PopStateEvent: 'readonly'
       }
     },
     rules: {
@@ -72,7 +76,8 @@ export default [
         beforeAll: 'readonly',
         afterAll: 'readonly',
         vi: 'readonly',
-        global: 'writable'
+        global: 'writable',
+        test: 'readonly'
       }
     }
   }

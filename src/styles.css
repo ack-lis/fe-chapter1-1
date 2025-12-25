@@ -36,6 +36,12 @@ body {
   overflow-x: hidden;
 }
 
+#app {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
 /* 페이지 기본 스타일 */
 .page {
   min-height: 100vh;
@@ -2521,12 +2527,16 @@ nav button:active {
   background: rgba(21, 93, 252, 0.05);
 }
 
+.nav-item-v2.hidden {display: none;}
+
 .sidebar-footer-v2 {
   padding-top: 17px;
   border-top: 1px solid #e5e7eb;
   margin-top: auto;
   flex-shrink: 0;
 }
+
+.sidebar-footer-v2.hidden {display: none;}
 
 .user-info-v2 {
   display: flex;
