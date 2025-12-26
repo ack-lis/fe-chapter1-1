@@ -74,5 +74,11 @@
     "last 2 versions",
     "not dead"
   ],
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "html-react-parser": "^5.2.10",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.10.1"
+  }
 }

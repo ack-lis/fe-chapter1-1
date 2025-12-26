@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 
+
 export default defineConfig({
   // 개발 서버 설정
   server: {
@@ -30,4 +31,6 @@ export default defineConfig({
   css: {
     devSourcemap: true
   }
+
+
 });

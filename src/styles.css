@@ -2585,7 +2585,26 @@ nav button:active {
   color: #364153;
   transition: all 0.2s ease;
 }
-
+.login-btn-v2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 0 0 12px;
+  height: 40px;
+  border: none;
+  background: #031b4b;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1.5em;
+  letter-spacing: -1.953125%;
+  color: #f3f4f6;
+  transition: all 0.2s ease;
+}
+.login-btn-v2:hover {
+  background: #9d92ce;
+}
 .logout-btn-v2:hover {
   background: #e5e7eb;
 }
